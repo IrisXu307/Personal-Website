@@ -1,4 +1,4 @@
-import JourneyMapLoader from '../components/JourneyMapLoader'
+import JourneyMap from '../components/JourneyMap'
 
 const skills = [
   'Python', 'Java', 'C/C++', 'TypeScript', 'JavaScript',
@@ -38,7 +38,7 @@ export default function About() {
         <p className="text-slate-500 text-sm mb-6">
           Grew up in Shanghai, traveled the world, and ended up here — building things.
         </p>
-        <JourneyMapLoader />
+        <JourneyMap />
       </div>
 
       {/* Skills */}
