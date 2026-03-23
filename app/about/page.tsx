@@ -1,3 +1,5 @@
+import JourneyMapLoader from '../components/JourneyMapLoader'
+
 const skills = [
   'Python', 'Java', 'C/C++', 'TypeScript', 'JavaScript',
   'React', 'Next.js', 'Node.js', 'Git', 'SQL',
@@ -27,6 +29,19 @@ export default function About() {
         </p>
       </div>
 
+      {/* Journey Map */}
+      <div className="mb-14">
+        <p className="text-xs font-semibold text-violet-500 mb-1 tracking-widest uppercase">
+          My Journey
+        </p>
+        <h3 className="text-2xl font-bold text-slate-900 mb-2">From Shanghai to Waterloo</h3>
+        <p className="text-slate-500 text-sm mb-6">
+          Grew up in Shanghai, traveled the world, and ended up here — building things.
+        </p>
+        <JourneyMapLoader />
+      </div>
+
+      {/* Skills */}
       <div>
         <h3 className="text-lg font-semibold text-slate-900 mb-5">Skills</h3>
         <div className="flex flex-wrap gap-2">
