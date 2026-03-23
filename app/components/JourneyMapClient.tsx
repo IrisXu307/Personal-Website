@@ -21,8 +21,7 @@ type Props = {
   countryPaths: string[]
   arcPaths: string[]
   stops: StopData[]
-  width: number
-  height: number
+  viewBox: string
 }
 
 function LabelPill({
@@ -46,15 +45,18 @@ function LabelPill({
       <rect
         x={rx - 2} y={y - lineH + 1}
         width={w + 4} height={totalH}
-        fill="white" fillOpacity={0.9} rx={5}
+        fill="white" fillOpacity={0.92} rx={5}
+        pointerEvents="none"
       />
       <text x={x} y={y} textAnchor={anchor} fontSize={fs} fontWeight={700}
         fill={active ? '#5B21B6' : '#1E293B'}
         fontFamily="var(--font-geist-sans), sans-serif"
+        pointerEvents="none"
       >{text}</text>
       <text x={x} y={y + subLineH} textAnchor={anchor} fontSize={subFs}
         fill="#7C3AED"
         fontFamily="var(--font-geist-sans), sans-serif"
+        pointerEvents="none"
       >{sub}</text>
     </>
   )
@@ -83,7 +85,7 @@ function InfoCard({ stop, onClose }: { stop: StopData; onClose: () => void }) {
   )
 }
 
-export default function JourneyMapClient({ countryPaths, arcPaths, stops, width, height }: Props) {
+export default function JourneyMapClient({ countryPaths, arcPaths, stops, viewBox }: Props) {
   const [seg, setSeg] = useState(0)
   const [selected, setSelected] = useState<number | null>(null)
   const total = stops.length - 1
@@ -92,28 +94,32 @@ export default function JourneyMapClient({ countryPaths, arcPaths, stops, width,
     <div className="space-y-4">
       {/* Map */}
       <div className="rounded-2xl overflow-hidden border border-slate-100 bg-[#dde8f7]">
-        <svg viewBox={`0 0 ${width} ${height}`} width="100%" style={{ display: 'block' }}>
-          {/* Countries */}
-          {countryPaths.map((d, i) => (
-            <path key={i} d={d} fill="#c8d8ee" stroke="#b0c4de" strokeWidth={0.5} />
-          ))}
+        <svg viewBox={viewBox} width="100%" style={{ display: 'block' }}>
+          {/* Countries — no pointer events, purely decorative */}
+          <g pointerEvents="none">
+            {countryPaths.map((d, i) => (
+              <path key={i} d={d} fill="#c8d8ee" stroke="#b0c4de" strokeWidth={0.5} />
+            ))}
+          </g>
 
-          {/* Arcs */}
-          {arcPaths.map((d, i) => {
-            const isActive = i === seg
-            return (
-              <path
-                key={i} d={d} fill="none"
-                stroke="#7C3AED"
-                strokeWidth={isActive ? 2.5 : 1.2}
-                strokeDasharray={isActive ? '9 6' : '4 5'}
-                strokeLinecap="round"
-                opacity={isActive ? 0.9 : 0.22}
-              />
-            )
-          })}
+          {/* Arcs — no pointer events */}
+          <g pointerEvents="none">
+            {arcPaths.map((d, i) => {
+              const isActive = i === seg
+              return (
+                <path
+                  key={i} d={d} fill="none"
+                  stroke="#7C3AED"
+                  strokeWidth={isActive ? 2.5 : 1.2}
+                  strokeDasharray={isActive ? '9 6' : '4 5'}
+                  strokeLinecap="round"
+                  opacity={isActive ? 0.9 : 0.22}
+                />
+              )
+            })}
+          </g>
 
-          {/* Markers + labels */}
+          {/* Markers — interactive */}
           {stops.map((stop, i) => {
             const { px, py, dx, dy, anchor } = stop
             const isActive = i === seg || i === seg + 1
@@ -125,17 +131,21 @@ export default function JourneyMapClient({ countryPaths, arcPaths, stops, width,
                 onClick={() => setSelected(selected === i ? null : i)}
                 style={{ cursor: 'pointer' }}
               >
+                {/* Large invisible hit area */}
+                <circle cx={px} cy={py} r={18} fill="transparent" />
+
                 {isActive && (
-                  <circle cx={px} cy={py} r={16} fill="#7C3AED" fillOpacity={0.12} />
+                  <circle cx={px} cy={py} r={15} fill="#7C3AED" fillOpacity={0.12} pointerEvents="none" />
                 )}
                 {isLast && !isActive && (
-                  <circle cx={px} cy={py} r={11} fill="#7C3AED" fillOpacity={0.1} />
+                  <circle cx={px} cy={py} r={11} fill="#7C3AED" fillOpacity={0.1} pointerEvents="none" />
                 )}
                 <circle
                   cx={px} cy={py}
                   r={isActive ? 7 : 5}
                   fill={selected === i ? '#4C1D95' : '#7C3AED'}
                   stroke="white" strokeWidth={2}
+                  pointerEvents="none"
                 />
                 <LabelPill
                   text={stop.name}
