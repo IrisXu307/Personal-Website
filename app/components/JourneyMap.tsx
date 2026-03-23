@@ -1,154 +1,132 @@
-'use client'
+import { geoNaturalEarth1, geoPath } from 'd3-geo'
+import { feature } from 'topojson-client'
+// @ts-ignore
+import worldData from 'world-atlas/countries-110m.json'
 
-import { ComposableMap, Geographies, Geography, Marker, Line } from 'react-simple-maps'
+const WIDTH = 960
+const HEIGHT = 500
 
-const GEO_URL = 'https://cdn.jsdelivr.net/npm/world-atlas@2/countries-110m.json'
+const projection = geoNaturalEarth1()
+  .scale(153)
+  .translate([WIDTH / 2, HEIGHT / 2])
+
+const pathGen = geoPath(projection)
+
+// @ts-ignore
+const countries = feature(worldData, worldData.objects.countries)
 
 const stops = [
-  {
-    index: 1,
-    name: 'Shanghai',
-    sublabel: 'Born & raised',
-    coordinates: [121.47, 31.23] as [number, number],
-    anchor: 'start' as const,
-    dx: 6,
-    dy: 4,
-    current: false,
-  },
-  {
-    index: 2,
-    name: 'Japan',
-    sublabel: 'Grade 3',
-    coordinates: [138.0, 36.5] as [number, number],
-    anchor: 'start' as const,
-    dx: 7,
-    dy: 4,
-    current: false,
-  },
-  {
-    index: 3,
-    name: 'London',
-    sublabel: 'Grade 7',
-    coordinates: [-0.12, 51.51] as [number, number],
-    anchor: 'middle' as const,
-    dx: 0,
-    dy: -10,
-    current: false,
-  },
-  {
-    index: 4,
-    name: 'Regina, SK',
-    sublabel: 'Grade 11–12',
-    coordinates: [-104.62, 50.45] as [number, number],
-    anchor: 'middle' as const,
-    dx: 0,
-    dy: -10,
-    current: false,
-  },
-  {
-    index: 5,
-    name: 'Waterloo, ON',
-    sublabel: 'Now',
-    coordinates: [-80.52, 43.47] as [number, number],
-    anchor: 'middle' as const,
-    dx: 0,
-    dy: -10,
-    current: true,
-  },
+  { index: 1, name: 'Shanghai',    sublabel: 'Born & raised', coords: [121.47,  31.23] as [number, number], current: false },
+  { index: 2, name: 'Japan',       sublabel: 'Grade 3',       coords: [138.0,   36.5 ] as [number, number], current: false },
+  { index: 3, name: 'London',      sublabel: 'Grade 7',       coords: [-0.12,   51.51] as [number, number], current: false },
+  { index: 4, name: 'Regina, SK',  sublabel: 'Grade 11–12',   coords: [-104.62, 50.45] as [number, number], current: false },
+  { index: 5, name: 'Waterloo, ON',sublabel: 'Now',           coords: [-80.52,  43.47] as [number, number], current: true  },
 ]
 
-const lines = stops.slice(0, -1).map((stop, i) => ({
-  from: stop.coordinates,
-  to: stops[i + 1].coordinates,
-}))
+function project(coords: [number, number]) {
+  return projection(coords) ?? [0, 0]
+}
+
+// Build a smooth cubic-bezier path between two projected points
+function curvePath(from: [number, number], to: [number, number]) {
+  const [x1, y1] = project(from)
+  const [x2, y2] = project(to)
+  const mx = (x1 + x2) / 2
+  const my = Math.min(y1, y2) - 60
+  return `M ${x1} ${y1} Q ${mx} ${my} ${x2} ${y2}`
+}
+
+// Label offsets per stop to avoid overlaps
+type Anchor = 'start' | 'middle' | 'end'
+const labelOffset: Record<string, [number, number, Anchor]> = {
+  'Shanghai':     [ 8,   4,  'start'],
+  'Japan':        [ 8,   4,  'start'],
+  'London':       [ 0,  -13, 'middle'],
+  'Regina, SK':   [-8,  -13, 'end'],
+  'Waterloo, ON': [ 0,  -13, 'middle'],
+}
 
 export default function JourneyMap() {
-  return (
-    <div className="space-y-6">
-      {/* Map */}
-      <div className="rounded-2xl overflow-hidden border border-slate-100 bg-slate-50">
-        <ComposableMap
-          projectionConfig={{ rotate: [-20, 0, 0], scale: 140 }}
-          style={{ width: '100%', height: 'auto' }}
-        >
-          <Geographies geography={GEO_URL}>
-            {({ geographies }: { geographies: any[] }) =>
-              geographies.map((geo: any) => (
-                <Geography
-                  key={geo.rsmKey}
-                  geography={geo}
-                  fill="#E2E8F0"
-                  stroke="#CBD5E1"
-                  strokeWidth={0.4}
-                  style={{
-                    default: { outline: 'none' },
-                    hover: { outline: 'none' },
-                    pressed: { outline: 'none' },
-                  }}
-                />
-              ))
-            }
-          </Geographies>
+  // @ts-ignore
+  const countryPaths = countries.features.map((f: any) => pathGen(f)).filter(Boolean)
 
-          {/* Journey lines */}
-          {lines.map((line, i) => (
-            <Line
+  return (
+    <div className="space-y-5">
+      {/* Map */}
+      <div className="rounded-2xl overflow-hidden border border-slate-100 bg-[#f0f4ff]">
+        <svg
+          viewBox={`0 0 ${WIDTH} ${HEIGHT}`}
+          width="100%"
+          style={{ display: 'block' }}
+        >
+          {/* Ocean tint */}
+          <rect width={WIDTH} height={HEIGHT} fill="#dde8f7" />
+
+          {/* Countries */}
+          {countryPaths.map((d: string, i: number) => (
+            <path key={i} d={d} fill="#c8d8ee" stroke="#b0c4de" strokeWidth={0.5} />
+          ))}
+
+          {/* Journey arcs */}
+          {stops.slice(0, -1).map((stop, i) => (
+            <path
               key={i}
-              from={line.from}
-              to={line.to}
+              d={curvePath(stop.coords, stops[i + 1].coords)}
+              fill="none"
               stroke="#7C3AED"
-              strokeWidth={1.5}
+              strokeWidth={2}
+              strokeDasharray="7 5"
               strokeLinecap="round"
-              strokeDasharray="5 4"
-              strokeOpacity={0.55}
+              opacity={0.6}
             />
           ))}
 
-          {/* Markers */}
-          {stops.map((stop) => (
-            <Marker key={stop.name} coordinates={stop.coordinates}>
-              {stop.current ? (
-                <>
-                  <circle r={7} fill="#7C3AED" fillOpacity={0.15} />
-                  <circle r={4.5} fill="#7C3AED" stroke="white" strokeWidth={2} />
-                </>
-              ) : (
-                <circle r={3.5} fill="#7C3AED" stroke="white" strokeWidth={1.5} />
-              )}
-              <text
-                textAnchor={stop.anchor}
-                x={stop.dx}
-                y={stop.dy}
-                style={{
-                  fontFamily: 'var(--font-geist-sans)',
-                  fontSize: '7.5px',
-                  fontWeight: 700,
-                  fill: stop.current ? '#6D28D9' : '#1E293B',
-                  pointerEvents: 'none',
-                }}
-              >
-                {stop.name}
-              </text>
-              <text
-                textAnchor={stop.anchor}
-                x={stop.dx}
-                y={stop.dy + 9}
-                style={{
-                  fontFamily: 'var(--font-geist-sans)',
-                  fontSize: '6px',
-                  fill: '#7C3AED',
-                  pointerEvents: 'none',
-                }}
-              >
-                {stop.sublabel}
-              </text>
-            </Marker>
-          ))}
-        </ComposableMap>
+          {/* Markers + labels */}
+          {stops.map((stop) => {
+            const [px, py] = project(stop.coords)
+            const [dx, dy, anchor] = labelOffset[stop.name] ?? [0, -13, 'middle' as Anchor]
+            return (
+              <g key={stop.name}>
+                {/* Glow ring for current stop */}
+                {stop.current && (
+                  <circle cx={px} cy={py} r={12} fill="#7C3AED" fillOpacity={0.15} />
+                )}
+                <circle
+                  cx={px} cy={py}
+                  r={stop.current ? 6 : 4.5}
+                  fill="#7C3AED"
+                  stroke="white"
+                  strokeWidth={2}
+                />
+                {/* City name */}
+                <text
+                  x={px + dx} y={py + dy}
+                  textAnchor={anchor}
+                  fontSize={stop.current ? 12 : 10}
+                  fontWeight={700}
+                  fill={stop.current ? '#5B21B6' : '#1E293B'}
+                  fontFamily="var(--font-geist-sans), sans-serif"
+                >
+                  {stop.name}
+                </text>
+                {/* Sub-label */}
+                <text
+                  x={px + dx} y={py + dy + 12}
+                  textAnchor={anchor}
+                  fontSize={9}
+                  fill="#7C3AED"
+                  fontFamily="var(--font-geist-sans), sans-serif"
+                >
+                  {stop.sublabel}
+                </text>
+              </g>
+            )
+          })}
+        </svg>
       </div>
 
-      {/* Timeline legend */}
-      <div className="flex flex-wrap gap-3">
+      {/* Timeline chips */}
+      <div className="flex flex-wrap gap-2">
         {stops.map((stop) => (
           <div
             key={stop.name}
@@ -165,12 +143,10 @@ export default function JourneyMap() {
             >
               {stop.index}
             </span>
-            <div>
-              <span className="font-semibold">{stop.name}</span>
-              <span className={`ml-1.5 text-xs ${stop.current ? 'text-violet-200' : 'text-slate-400'}`}>
-                {stop.sublabel}
-              </span>
-            </div>
+            <span className="font-semibold">{stop.name}</span>
+            <span className={`text-xs ${stop.current ? 'text-violet-200' : 'text-slate-400'}`}>
+              {stop.sublabel}
+            </span>
           </div>
         ))}
       </div>
