@@ -10,17 +10,21 @@ export type StopData = {
   name: string
   period: string
   description: string
-  px: number
-  py: number
-  dx: number
-  dy: number
+  px: number; py: number
+  dx: number; dy: number
   anchor: Anchor
+}
+
+export type SegmentData = {
+  fromIdx: number
+  toIdx: number
+  path: string
 }
 
 type Props = {
   countryPaths: string[]
-  arcPaths: string[]
   stops: StopData[]
+  segments: SegmentData[]
   viewBox: string
 }
 
@@ -29,12 +33,12 @@ function LabelPill({
 }: {
   text: string; sub: string; x: number; y: number; anchor: Anchor; active: boolean
 }) {
-  const fs = active ? 13 : 11
-  const subFs = 9.5
+  const fs = active ? 15 : 13
+  const subFs = 11
   const lineH = fs + 6
-  const subLineH = subFs + 5
-  const totalH = lineH + subLineH + 2
-  const w = Math.max(text.length * fs * 0.62, sub.length * subFs * 0.62) + 14
+  const subLineH = subFs + 6
+  const totalH = lineH + subLineH + 1
+  const w = Math.max(text.length * fs * 0.6, sub.length * subFs * 0.6) + 16
 
   let rx = x
   if (anchor === 'middle') rx = x - w / 2
@@ -43,9 +47,9 @@ function LabelPill({
   return (
     <>
       <rect
-        x={rx - 2} y={y - lineH + 1}
-        width={w + 4} height={totalH}
-        fill="white" fillOpacity={0.92} rx={5}
+        x={rx - 3} y={y - lineH + 1}
+        width={w + 6} height={totalH}
+        fill="white" fillOpacity={0.93} rx={6}
         pointerEvents="none"
       />
       <text x={x} y={y} textAnchor={anchor} fontSize={fs} fontWeight={700}
@@ -54,7 +58,7 @@ function LabelPill({
         pointerEvents="none"
       >{text}</text>
       <text x={x} y={y + subLineH} textAnchor={anchor} fontSize={subFs}
-        fill="#7C3AED"
+        fill={active ? '#7C3AED' : '#64748B'}
         fontFamily="var(--font-geist-sans), sans-serif"
         pointerEvents="none"
       >{sub}</text>
@@ -85,35 +89,36 @@ function InfoCard({ stop, onClose }: { stop: StopData; onClose: () => void }) {
   )
 }
 
-export default function JourneyMapClient({ countryPaths, arcPaths, stops, viewBox }: Props) {
-  const [seg, setSeg] = useState(0)
+export default function JourneyMapClient({ countryPaths, stops, segments, viewBox }: Props) {
+  const [activeSeg, setActiveSeg] = useState(0)
   const [selected, setSelected] = useState<number | null>(null)
-  const total = stops.length - 1
+
+  const cur = segments[activeSeg]
 
   return (
     <div className="space-y-4">
       {/* Map */}
       <div className="rounded-2xl overflow-hidden border border-slate-100 bg-[#dde8f7]">
         <svg viewBox={viewBox} width="100%" style={{ display: 'block' }}>
-          {/* Countries — no pointer events, purely decorative */}
+          {/* Countries — decorative only */}
           <g pointerEvents="none">
             {countryPaths.map((d, i) => (
               <path key={i} d={d} fill="#c8d8ee" stroke="#b0c4de" strokeWidth={0.5} />
             ))}
           </g>
 
-          {/* Arcs — no pointer events */}
+          {/* Arcs — decorative only */}
           <g pointerEvents="none">
-            {arcPaths.map((d, i) => {
-              const isActive = i === seg
+            {segments.map((seg, i) => {
+              const isActive = i === activeSeg
               return (
                 <path
-                  key={i} d={d} fill="none"
+                  key={i} d={seg.path} fill="none"
                   stroke="#7C3AED"
                   strokeWidth={isActive ? 2.5 : 1.2}
-                  strokeDasharray={isActive ? '9 6' : '4 5'}
+                  strokeDasharray={isActive ? '10 6' : '4 5'}
                   strokeLinecap="round"
-                  opacity={isActive ? 0.9 : 0.22}
+                  opacity={isActive ? 0.9 : 0.2}
                 />
               )
             })}
@@ -122,7 +127,7 @@ export default function JourneyMapClient({ countryPaths, arcPaths, stops, viewBo
           {/* Markers — interactive */}
           {stops.map((stop, i) => {
             const { px, py, dx, dy, anchor } = stop
-            const isActive = i === seg || i === seg + 1
+            const isActive = i === cur.fromIdx || i === cur.toIdx
             const isLast = i === stops.length - 1
 
             return (
@@ -131,20 +136,21 @@ export default function JourneyMapClient({ countryPaths, arcPaths, stops, viewBo
                 onClick={() => setSelected(selected === i ? null : i)}
                 style={{ cursor: 'pointer' }}
               >
-                {/* Large invisible hit area */}
-                <circle cx={px} cy={py} r={18} fill="transparent" />
-
+                {/* Hit area */}
+                <circle cx={px} cy={py} r={20} fill="transparent" />
+                {/* Glow */}
                 {isActive && (
-                  <circle cx={px} cy={py} r={15} fill="#7C3AED" fillOpacity={0.12} pointerEvents="none" />
+                  <circle cx={px} cy={py} r={16} fill="#7C3AED" fillOpacity={0.13} pointerEvents="none" />
                 )}
                 {isLast && !isActive && (
                   <circle cx={px} cy={py} r={11} fill="#7C3AED" fillOpacity={0.1} pointerEvents="none" />
                 )}
+                {/* Dot */}
                 <circle
                   cx={px} cy={py}
-                  r={isActive ? 7 : 5}
+                  r={isActive ? 8 : 5.5}
                   fill={selected === i ? '#4C1D95' : '#7C3AED'}
-                  stroke="white" strokeWidth={2}
+                  stroke="white" strokeWidth={2.5}
                   pointerEvents="none"
                 />
                 <LabelPill
@@ -160,26 +166,26 @@ export default function JourneyMapClient({ countryPaths, arcPaths, stops, viewBo
         </svg>
       </div>
 
-      {/* Navigator */}
+      {/* Segment navigator */}
       <div className="flex items-center gap-3">
         <button
-          onClick={() => { setSeg(s => Math.max(0, s - 1)); setSelected(null) }}
-          disabled={seg === 0}
+          onClick={() => { setActiveSeg(s => Math.max(0, s - 1)); setSelected(null) }}
+          disabled={activeSeg === 0}
           className="flex items-center gap-1 px-3 py-2 rounded-xl border border-slate-200 text-slate-600 text-sm font-medium disabled:opacity-30 hover:border-violet-300 hover:text-violet-600 transition-all"
         >
           <ChevronLeft size={15} /> Prev
         </button>
         <div className="flex-1 text-center">
           <p className="text-sm font-semibold text-slate-800">
-            {stops[seg].name}
+            {stops[cur.fromIdx].name}
             <span className="text-slate-400 mx-2">→</span>
-            <span className="text-violet-600">{stops[seg + 1].name}</span>
+            <span className="text-violet-600">{stops[cur.toIdx].name}</span>
           </p>
-          <p className="text-xs text-slate-400 mt-0.5">{seg + 1} of {total}</p>
+          <p className="text-xs text-slate-400 mt-0.5">{activeSeg + 1} of {segments.length}</p>
         </div>
         <button
-          onClick={() => { setSeg(s => Math.min(total - 1, s + 1)); setSelected(null) }}
-          disabled={seg === total - 1}
+          onClick={() => { setActiveSeg(s => Math.min(segments.length - 1, s + 1)); setSelected(null) }}
+          disabled={activeSeg === segments.length - 1}
           className="flex items-center gap-1 px-3 py-2 rounded-xl border border-slate-200 text-slate-600 text-sm font-medium disabled:opacity-30 hover:border-violet-300 hover:text-violet-600 transition-all"
         >
           Next <ChevronRight size={15} />
@@ -191,7 +197,7 @@ export default function JourneyMapClient({ countryPaths, arcPaths, stops, viewBo
         <InfoCard stop={stops[selected]} onClose={() => setSelected(null)} />
       )}
 
-      {/* Chips */}
+      {/* Stop chips */}
       <div className="flex flex-wrap gap-2 pt-1">
         {stops.map((stop, i) => (
           <button
