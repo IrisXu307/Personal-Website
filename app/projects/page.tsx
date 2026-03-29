@@ -12,10 +12,10 @@ const projects = [
   {
     title: 'One Million',
     description:
-      'A project that hit a milestone of one million — [add your description here]. Built end-to-end in a single day.',
-    tags: ['placeholder', 'coming soon'],
-    github: '#',
-    live: '#',
+      'Multi-agent AI pipeline that tracks housing, healthcare, employment, and urban metrics across federal, provincial, and municipal sources. Orchestrates parallel LangChain agents to collect, synthesize, and auto-generate structured reports — built in a day at FCI Hackathon.',
+    tags: ['Python', 'LangChain', 'Multi-Agent', 'Data Pipeline', 'Hackathon'],
+    github: 'https://github.com/IrisXu307/FCI-Hackathon-One-Million-Scoreboard',
+    live: null,
     highlight: true,
   },
   {
