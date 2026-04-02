@@ -1,127 +1,109 @@
 import Link from 'next/link'
-import { ArrowRight, Zap, Box, Telescope } from 'lucide-react'
+import { ArrowRight } from 'lucide-react'
+import DialogueGame from './components/DialogueGame'
 
-const traits = [
-  {
-    icon: Zap,
-    title: 'I learn fast.',
-    desc: 'New language, new framework, new domain — give me a weekend.',
-  },
-  {
-    icon: Box,
-    title: 'I ship things.',
-    desc: "Ideas don't count until they're real. I bias heavily toward building.",
-  },
-  {
-    icon: Telescope,
-    title: 'I think big.',
-    desc: 'One million is just the starting point.',
-  },
+const stats = [
+  { label: 'LVL', value: '1B', sub: 'CS @ UWaterloo' },
+  { label: 'AGI', value: '99', sub: 'Fast Learner' },
+  { label: 'STR', value: '87', sub: 'Ships Things' },
+  { label: 'VIS', value: '92', sub: 'Thinks Big' },
 ]
 
 const stack = [
-  'Python', 'Java', 'C/C++', 'TypeScript',
-  'React', 'Next.js', 'Node.js', 'Git', 'SQL',
+  { name: 'Python', color: 'border-amber-700/50 text-amber-400 hover:bg-amber-950/50 hover:border-amber-500' },
+  { name: 'Java', color: 'border-orange-700/50 text-orange-400 hover:bg-orange-950/50 hover:border-orange-500' },
+  { name: 'C/C++', color: 'border-sky-700/50 text-sky-400 hover:bg-sky-950/50 hover:border-sky-500' },
+  { name: 'TypeScript', color: 'border-blue-700/50 text-blue-400 hover:bg-blue-950/50 hover:border-blue-500' },
+  { name: 'React', color: 'border-cyan-700/50 text-cyan-400 hover:bg-cyan-950/50 hover:border-cyan-500' },
+  { name: 'Next.js', color: 'border-slate-600/50 text-slate-300 hover:bg-slate-800/50 hover:border-slate-400' },
+  { name: 'Node.js', color: 'border-green-700/50 text-green-400 hover:bg-green-950/50 hover:border-green-500' },
+  { name: 'Git', color: 'border-red-700/50 text-red-400 hover:bg-red-950/50 hover:border-red-500' },
+  { name: 'SQL', color: 'border-violet-700/50 text-violet-400 hover:bg-violet-950/50 hover:border-violet-500' },
 ]
 
 const currently = [
-  { label: 'Studying', value: 'CS @ University of Waterloo, 1B' },
-  { label: 'Building', value: 'this website (meta, I know)' },
-  { label: 'Learning', value: 'systems design & distributed systems' },
-  { label: 'Reading', value: 'placeholder — add your current book' },
+  { icon: '📚', label: 'Studying', value: 'CS @ University of Waterloo, 1B' },
+  { icon: '⚒️', label: 'Building', value: 'this website (meta, I know)' },
+  { icon: '🧠', label: 'Learning', value: 'systems design & distributed systems' },
+  { icon: '📖', label: 'Reading', value: 'placeholder — add your current book' },
 ]
 
 export default function Home() {
   return (
-    <div>
-      {/* Hero */}
-      <section className="min-h-[calc(100vh-4rem)] flex items-center justify-center px-6">
-        <div className="max-w-2xl text-center">
-          <p className="text-sm font-semibold text-violet-500 mb-4 tracking-widest uppercase">
-            hey, i&apos;m
+    <div className="game-grid min-h-screen">
+      {/* Hero / Title Screen */}
+      <section className="relative min-h-[calc(100vh-4rem)] flex flex-col items-center justify-center px-6 overflow-hidden">
+        {/* Background glow */}
+        <div className="absolute top-1/4 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[700px] h-[400px] bg-violet-600/10 rounded-full blur-[100px] pointer-events-none" />
+        <div className="absolute top-1/3 left-1/3 w-[300px] h-[300px] bg-cyan-600/6 rounded-full blur-[80px] pointer-events-none" />
+
+        <div className="relative z-10 text-center">
+          <p className="font-mono text-xs text-violet-500 tracking-[0.5em] mb-6 uppercase">
+            ── player one ──
           </p>
-          <h1 className="text-7xl font-bold tracking-tight mb-5 bg-gradient-to-r from-violet-600 via-fuchsia-500 to-sky-500 bg-clip-text text-transparent">
+          <h1 className="text-8xl font-bold tracking-tight mb-4 bg-gradient-to-r from-violet-400 via-fuchsia-400 to-cyan-400 bg-clip-text text-transparent glow-violet">
             Iris Xu
           </h1>
-          <p className="text-xl font-medium text-slate-700 mb-3">
-            CS Student @ University of Waterloo &middot; 1B
+          <p className="font-mono text-slate-400 text-base mb-10 tracking-widest">
+            CS STUDENT  ·  BUILDER  ·  UWaterloo 1B
           </p>
-          <p className="text-lg text-slate-500 mb-10 max-w-lg mx-auto leading-relaxed">
-            I build things that are fast, clean, and actually useful.
-          </p>
+
+          {/* Stat bar */}
+          <div className="flex items-center justify-center gap-6 mb-12">
+            {stats.map(({ label, value, sub }) => (
+              <div key={label} className="text-center">
+                <div className="font-mono text-xs text-slate-600 mb-0.5 tracking-widest">{label}</div>
+                <div className="font-mono text-xl font-bold text-violet-300">{value}</div>
+                <div className="font-mono text-[10px] text-slate-600">{sub}</div>
+              </div>
+            ))}
+          </div>
+
           <div className="flex gap-4 justify-center flex-wrap">
             <Link
               href="/projects"
-              className="px-6 py-3 bg-violet-600 text-white rounded-xl font-medium hover:bg-violet-700 transition-all hover:shadow-lg hover:shadow-violet-200 hover:-translate-y-0.5"
+              className="group px-6 py-3 bg-violet-700/80 border border-violet-500/50 text-violet-100 rounded-lg font-mono text-sm font-bold tracking-wider hover:bg-violet-600/80 hover:border-violet-400 transition-all box-glow-violet hover:-translate-y-0.5 flex items-center gap-2"
             >
-              View My Work
+              VIEW QUESTS
+              <ArrowRight size={14} className="group-hover:translate-x-0.5 transition-transform" />
             </Link>
             <Link
               href="/contact"
-              className="px-6 py-3 border border-slate-200 text-slate-700 rounded-xl font-medium hover:border-violet-300 hover:text-violet-600 transition-all hover:-translate-y-0.5"
+              className="px-6 py-3 border border-slate-700 text-slate-400 rounded-lg font-mono text-sm font-bold tracking-wider hover:border-violet-600 hover:text-violet-400 transition-all hover:-translate-y-0.5"
             >
-              Get In Touch
+              SEND MESSAGE
             </Link>
           </div>
         </div>
-      </section>
 
-      {/* Traits */}
-      <section className="max-w-5xl mx-auto px-6 py-24">
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          {traits.map(({ icon: Icon, title, desc }) => (
-            <div
-              key={title}
-              className="p-6 rounded-2xl border border-slate-100 hover:border-violet-200 hover:bg-violet-50/50 transition-all group"
-            >
-              <div className="w-10 h-10 rounded-xl bg-violet-100 flex items-center justify-center mb-4 group-hover:bg-violet-200 transition-colors">
-                <Icon size={18} className="text-violet-600" />
-              </div>
-              <h3 className="font-bold text-slate-900 mb-1">{title}</h3>
-              <p className="text-slate-500 text-sm leading-relaxed">{desc}</p>
-            </div>
-          ))}
+        <div className="absolute bottom-8 left-1/2 -translate-x-1/2 font-mono text-xs text-slate-700 tracking-widest animate-bounce">
+          ▼ SCROLL
         </div>
       </section>
 
-      {/* Featured Project */}
-      <section className="max-w-5xl mx-auto px-6 pb-24">
-        <p className="text-xs font-semibold text-violet-500 mb-2 tracking-widest uppercase">
-          Latest
-        </p>
-        <h2 className="text-2xl font-bold text-slate-900 mb-6">Featured Project</h2>
-        <Link href="/projects" className="group block">
-          <div className="relative overflow-hidden rounded-2xl border border-violet-200 bg-gradient-to-br from-violet-50 to-sky-50 p-8 hover:shadow-xl hover:shadow-violet-100 transition-all hover:-translate-y-1">
-            <div className="absolute top-0 right-0 w-64 h-64 bg-gradient-to-bl from-violet-200/30 to-transparent rounded-full -translate-y-16 translate-x-16 pointer-events-none" />
-            <span className="inline-block text-xs font-semibold text-violet-600 bg-violet-100 px-3 py-1 rounded-full mb-4">
-              shipped yesterday
-            </span>
-            <h3 className="text-3xl font-bold text-slate-900 mb-3">One Million</h3>
-            <p className="text-slate-500 max-w-xl leading-relaxed mb-6">
-              [Add your project description here — what is it, what problem does it solve, what did you build it with?]
-            </p>
-            <span className="flex items-center gap-2 text-violet-600 font-medium text-sm group-hover:gap-3 transition-all">
-              See all projects <ArrowRight size={15} />
-            </span>
-          </div>
-        </Link>
+      {/* Talk to Iris — dialogue mini-game */}
+      <section className="max-w-5xl mx-auto px-6 py-24">
+        <div className="text-center mb-10">
+          <p className="font-mono text-xs text-cyan-600 tracking-[0.4em] mb-2 uppercase">── interactive ──</p>
+          <h2 className="text-3xl font-bold text-slate-100 mb-2">Talk to Iris</h2>
+          <p className="text-slate-500 font-mono text-sm">Navigate the dialogue tree to learn more about me</p>
+        </div>
+        <DialogueGame />
       </section>
 
-      {/* Stack + Currently */}
+      {/* Loadout + Status */}
       <section className="max-w-5xl mx-auto px-6 pb-32 grid grid-cols-1 md:grid-cols-2 gap-12">
         {/* Stack */}
         <div>
-          <p className="text-xs font-semibold text-violet-500 mb-2 tracking-widest uppercase">
-            Toolkit
-          </p>
-          <h2 className="text-2xl font-bold text-slate-900 mb-5">Tech I use</h2>
+          <p className="font-mono text-xs text-violet-500 tracking-[0.4em] mb-3 uppercase">── loadout ──</p>
+          <h2 className="text-xl font-bold text-slate-100 mb-5">Tech Stack</h2>
           <div className="flex flex-wrap gap-2">
-            {stack.map((tech) => (
+            {stack.map(({ name, color }) => (
               <span
-                key={tech}
-                className="px-3 py-1.5 bg-slate-50 border border-slate-100 text-slate-600 rounded-lg text-sm font-medium hover:border-violet-200 hover:text-violet-600 hover:bg-violet-50 transition-colors cursor-default"
+                key={name}
+                className={`px-3 py-1.5 bg-transparent border rounded-lg font-mono text-xs font-bold tracking-wide transition-all cursor-default ${color}`}
               >
-                {tech}
+                {name}
               </span>
             ))}
           </div>
@@ -129,33 +111,35 @@ export default function Home() {
 
         {/* Currently */}
         <div>
-          <p className="text-xs font-semibold text-violet-500 mb-2 tracking-widest uppercase">
-            Right Now
-          </p>
-          <h2 className="text-2xl font-bold text-slate-900 mb-5">Currently</h2>
+          <p className="font-mono text-xs text-cyan-600 tracking-[0.4em] mb-3 uppercase">── quest log ──</p>
+          <h2 className="text-xl font-bold text-slate-100 mb-5">Currently</h2>
           <ul className="space-y-3">
-            {currently.map(({ label, value }) => (
-              <li key={label} className="flex gap-3 text-sm">
-                <span className="font-semibold text-slate-400 w-16 shrink-0">{label}</span>
-                <span className="text-slate-600">{value}</span>
+            {currently.map(({ icon, label, value }) => (
+              <li key={label} className="flex gap-3 items-start">
+                <span className="text-base leading-5">{icon}</span>
+                <div>
+                  <span className="font-mono text-xs text-violet-500 tracking-widest block mb-0.5">{label.toUpperCase()}</span>
+                  <span className="text-sm text-slate-400 font-mono">{value}</span>
+                </div>
               </li>
             ))}
           </ul>
         </div>
       </section>
 
-      {/* Bottom CTA */}
-      <section className="border-t border-slate-100 bg-slate-50">
+      {/* CTA */}
+      <section className="border-t border-violet-900/30 bg-[#0a0818]/80">
         <div className="max-w-5xl mx-auto px-6 py-16 flex flex-col sm:flex-row items-center justify-between gap-6">
           <div>
-            <h2 className="text-2xl font-bold text-slate-900">Want to work together?</h2>
-            <p className="text-slate-500 mt-1">I&apos;m open to internships, projects, and good conversations.</p>
+            <p className="font-mono text-xs text-violet-500 tracking-[0.4em] mb-1">── new game + ──</p>
+            <h2 className="text-2xl font-bold text-slate-100">Want to work together?</h2>
+            <p className="text-slate-500 mt-1 font-mono text-sm">Open to internships, projects, and good conversations.</p>
           </div>
           <Link
             href="/contact"
-            className="shrink-0 px-6 py-3 bg-violet-600 text-white rounded-xl font-medium hover:bg-violet-700 transition-all hover:shadow-lg hover:shadow-violet-200 hover:-translate-y-0.5 flex items-center gap-2"
+            className="shrink-0 px-6 py-3 bg-violet-700/80 border border-violet-500/50 text-violet-100 rounded-lg font-mono text-sm font-bold tracking-wider hover:bg-violet-600/80 hover:border-violet-400 transition-all box-glow-violet hover:-translate-y-0.5 flex items-center gap-2"
           >
-            Let&apos;s talk <ArrowRight size={16} />
+            LET&apos;S TALK <ArrowRight size={14} />
           </Link>
         </div>
       </section>

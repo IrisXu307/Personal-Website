@@ -11,88 +11,129 @@ function GithubIcon({ size = 15 }: { size?: number }) {
 const projects = [
   {
     title: 'One Million',
+    date: 'Mar 2026',
+    emoji: '🤖',
+    genre: 'AI · Hackathon',
+    difficulty: 'HARD',
+    difficultyColor: 'text-red-400 border-red-800/50 bg-red-950/30',
     description:
-      'Multi-agent AI pipeline that tracks housing, healthcare, employment, and urban metrics across federal, provincial, and municipal sources. Orchestrates parallel LangChain agents to collect, synthesize, and auto-generate structured reports — built in a day at FCI Hackathon.',
-    tags: ['Python', 'LangChain', 'Multi-Agent', 'Data Pipeline', 'Hackathon'],
+      'Multi-agent AI pipeline tracking housing, healthcare, employment, and urban metrics across federal, provincial, and municipal sources. Parallel LangChain agents — built in one day at FCI Hackathon.',
+    tags: ['Python', 'LangChain', 'Multi-Agent', 'Data Pipeline'],
     github: 'https://github.com/IrisXu307/FCI-Hackathon-One-Million-Scoreboard',
     live: null,
-    highlight: true,
+    status: 'COMPLETED',
+    statusColor: 'text-green-400',
+    banner: 'from-violet-900/80 to-indigo-900/60',
+    border: 'border-violet-800/50 hover:border-violet-500/70',
+    glow: 'hover:box-glow-violet',
+    tagStyle: 'bg-violet-900/40 text-violet-300 border border-violet-800/50',
   },
   {
-    title: 'Project Two',
+    title: 'Flags of Asia',
+    date: 'Nov 2023',
+    emoji: '🎌',
+    genre: 'Browser Game',
+    difficulty: 'MEDIUM',
+    difficultyColor: 'text-amber-400 border-amber-800/50 bg-amber-950/30',
     description:
-      'Placeholder — describe what this project does, why you built it, and what you learned.',
-    tags: ['placeholder'],
-    github: '#',
+      'Quiz game: identify 15 Asian flags among 30 within 10 minutes, with only 4 mistakes allowed. Built as a Grade 11 CS capstone — pure vanilla HTML, CSS, JS. No frameworks. No dependencies.',
+    tags: ['HTML', 'CSS', 'JavaScript'],
+    github: 'https://github.com/IrisXu307/Asian-Flag-Game',
     live: null,
+    status: 'SHIPPED',
+    statusColor: 'text-cyan-400',
+    banner: 'from-amber-900/70 to-orange-900/50',
+    border: 'border-amber-800/40 hover:border-amber-500/60',
+    glow: 'hover:box-glow-amber',
+    tagStyle: 'bg-amber-900/40 text-amber-300 border border-amber-800/50',
   },
   {
     title: 'Project Three',
+    date: null,
+    emoji: '📦',
+    genre: 'Coming Soon',
+    difficulty: '???',
+    difficultyColor: 'text-slate-500 border-slate-700/50 bg-slate-900/30',
     description:
-      'Placeholder — describe what this project does, why you built it, and what you learned.',
-    tags: ['placeholder'],
+      'This quest is still being written. Check back later.',
+    tags: ['TBD'],
     github: '#',
     live: null,
+    status: 'IN PROGRESS',
+    statusColor: 'text-slate-500',
+    banner: 'from-slate-800/60 to-slate-900/60',
+    border: 'border-slate-700/40 hover:border-slate-600/60',
+    glow: '',
+    tagStyle: 'bg-slate-800/40 text-slate-500 border border-slate-700/50',
   },
 ]
 
 export default function Projects() {
   return (
-    <div className="max-w-5xl mx-auto px-6 py-20">
-      <p className="text-sm font-semibold text-violet-500 mb-2 tracking-widest uppercase">
-        My Work
-      </p>
-      <h2 className="text-4xl font-bold text-slate-900 mb-10">Projects</h2>
+    <div className="game-grid min-h-screen">
+      <div className="max-w-5xl mx-auto px-6 py-20">
+        <p className="font-mono text-xs text-violet-500 tracking-[0.4em] mb-2 uppercase">── my work ──</p>
+        <h2 className="text-4xl font-bold text-slate-100 mb-2">Quest Log</h2>
+        <p className="font-mono text-sm text-slate-600 mb-10">{projects.filter(p => p.status !== 'IN PROGRESS').length} / {projects.length} completed</p>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {projects.map((project) => (
-          <div
-            key={project.title}
-            className={`group relative flex flex-col rounded-2xl border p-6 transition-all hover:-translate-y-1 hover:shadow-xl ${
-              project.highlight
-                ? 'border-violet-200 bg-violet-50 hover:shadow-violet-100'
-                : 'border-slate-100 bg-white hover:shadow-slate-100'
-            }`}
-          >
-            {project.highlight && (
-              <span className="absolute top-4 right-4 text-xs font-semibold text-violet-600 bg-violet-100 px-2 py-0.5 rounded-full">
-                Latest
-              </span>
-            )}
-            <h3 className="text-lg font-bold text-slate-900 mb-2">{project.title}</h3>
-            <p className="text-slate-500 text-sm leading-relaxed flex-1 mb-4">
-              {project.description}
-            </p>
-            <div className="flex flex-wrap gap-1.5 mb-5">
-              {project.tags.map((tag) => (
-                <span
-                  key={tag}
-                  className="px-2 py-0.5 bg-slate-100 text-slate-500 rounded-md text-xs font-medium"
-                >
-                  {tag}
-                </span>
-              ))}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+          {projects.map((p) => (
+            <div
+              key={p.title}
+              className={`group flex flex-col rounded-xl border bg-[#0d0b1e] overflow-hidden transition-all hover:-translate-y-1 ${p.border} ${p.glow}`}
+            >
+              {/* Banner */}
+              <div className={`bg-gradient-to-r ${p.banner} px-5 py-4 flex items-center justify-between`}>
+                <div className="flex items-center gap-2.5">
+                  <span className="text-xl leading-none">{p.emoji}</span>
+                  <span className="font-mono text-xs text-white/50 tracking-widest uppercase">{p.genre}</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  {p.date && <span className="font-mono text-xs text-white/40">{p.date}</span>}
+                  <span className={`font-mono text-[10px] font-bold px-2 py-0.5 rounded border ${p.difficultyColor}`}>
+                    {p.difficulty}
+                  </span>
+                </div>
+              </div>
+
+              {/* Body */}
+              <div className="flex flex-col flex-1 p-5">
+                <div className="flex items-start justify-between gap-2 mb-2">
+                  <h3 className="font-bold text-slate-100">{p.title}</h3>
+                  <span className={`font-mono text-[10px] font-bold tracking-wider shrink-0 mt-0.5 ${p.statusColor}`}>
+                    {p.status}
+                  </span>
+                </div>
+                <p className="text-slate-500 text-sm leading-relaxed flex-1 mb-4">{p.description}</p>
+                <div className="flex flex-wrap gap-1.5 mb-5">
+                  {p.tags.map((tag) => (
+                    <span key={tag} className={`px-2 py-0.5 rounded font-mono text-xs ${p.tagStyle}`}>
+                      {tag}
+                    </span>
+                  ))}
+                </div>
+                <div className="flex gap-4">
+                  <a
+                    href={p.github}
+                    className="flex items-center gap-1.5 font-mono text-xs text-slate-500 hover:text-slate-200 transition-colors"
+                  >
+                    <GithubIcon size={13} />
+                    CODE
+                  </a>
+                  {p.live && (
+                    <a
+                      href={p.live}
+                      className="flex items-center gap-1.5 font-mono text-xs text-violet-500 hover:text-violet-300 transition-colors"
+                    >
+                      <ExternalLink size={13} />
+                      LIVE
+                    </a>
+                  )}
+                </div>
+              </div>
             </div>
-            <div className="flex gap-3">
-              <a
-                href={project.github}
-                className="flex items-center gap-1.5 text-sm text-slate-500 hover:text-slate-900 transition-colors font-medium"
-              >
-                <GithubIcon size={15} />
-                Code
-              </a>
-              {project.live && (
-                <a
-                  href={project.live}
-                  className="flex items-center gap-1.5 text-sm text-violet-500 hover:text-violet-700 transition-colors font-medium"
-                >
-                  <ExternalLink size={15} />
-                  Live
-                </a>
-              )}
-            </div>
-          </div>
-        ))}
+          ))}
+        </div>
       </div>
     </div>
   )
